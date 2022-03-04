@@ -42,7 +42,6 @@ char	*right_path(char **path, char *path_cmd)
 void	child_one(char *argv[], char**envp, int f1)
 {
 	char	**path;
-	char	*slash;
 	char	**cmd;
 	char	*path_cmd;
 	char	*my_path;
