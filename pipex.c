@@ -1,81 +1,101 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   pipex.c                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: qfrederi <qfrederi@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/02/23 10:32:04 by qfrederi          #+#    #+#             */
-/*   Updated: 2022/03/04 12:57:26 by qfrederi         ###   ########.fr       */
+/*                                                        ::::::::            */
+/*   pipex.c                                            :+:    :+:            */
+/*                                                     +:+                    */
+/*   By: qfrederi <qfrederi@student.42.fr>            +#+                     */
+/*                                                   +#+                      */
+/*   Created: 2022/03/07 12:16:31 by qfrederi      #+#    #+#                 */
+/*   Updated: 2022/03/09 13:27:57 by qfrederi      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
+#include "pipex.h"
 
-
-void	child_two(int f2, char *cmd2)
+void	child_one(char *argv[], char**envp, int f1, int *pipefd)
 {
-	dup2(f2, STDIN_FILENO);
-	close (f2);
-	exit(EXIT_FAILURE);
-}
+	char	**path;
+	char	**cmd;
+	char	*path_cmd;
+	char	*my_path;
+	int		index_split;
 
-void	child_one(int f1, char *cmd1)
-{
+	index_split = 0;
+	cmd = ft_split(argv[2], ' ');
+	if (!cmd)
+		print_error();
+	path_cmd = cmd[0];
+	path = find_path(envp);
+	index_split = split_index(path);
+	my_path = right_path(path, path_cmd, index_split);
+	free_split(path, index_split);
+	close(pipefd[0]);
 	dup2(f1, STDIN_FILENO);
-	
-	close (f1);
-	exit(EXIT_FAILURE);
+	dup2(pipefd[1], STDOUT_FILENO);
+	execve(my_path, cmd, envp);
 }
 
-void	pipex(int f1, int f2, char *cmd1, char *cmd2)
+void	child_two(char *argv[], char**envp, int f2, int *pipefd)
 {
-	int		end[2];
-	int		status;
+	char	**path;
+	char	**cmd;
+	char	*path_cmd;
+	char	*my_path;
+	int		index_split;
+
+	index_split = 0;
+	cmd = ft_split(argv[3], ' ');
+	if (!cmd)
+		print_error();
+	path_cmd = cmd[0];
+	path = find_path(envp);
+	index_split = split_index(path);
+	my_path = right_path(path, path_cmd, index_split);
+	free_split(path, index_split);
+	close(pipefd[1]);
+	dup2(pipefd[0], STDIN_FILENO);
+	dup2(f2, STDOUT_FILENO);
+	execve(my_path, cmd, envp);
+}
+
+void	pipex(char *argv[], char**envp, int *pipefd)
+{
+	int		f1;
+	int		f2;
 	pid_t	child1;
 	pid_t	child2;
 
-	pipe(end);
+	f1 = open(argv[1], O_RDONLY);
+	f2 = open(argv[4], O_CREAT | O_WRONLY | O_TRUNC, 0644);
 	child1 = fork();
 	if (child1 < 0)
-		return (perror("Fork: "));
+		perror("Fork 1 has Failed");
 	if (child1 == 0)
-		child_one(f1, cmd1);
+		child_one(argv, envp, f1, pipefd);
 	child2 = fork();
 	if (child2 < 0)
-		return (perror("Fork: "));
+		perror("Fork 2 has Failed");
 	if (child2 == 0)
-		child_two(f2, cmd2);
-	close(end[0]);         // this is the parent
-	close(end[1]);         // doing nothing
-	waitpid(child1, &status, 0);  // supervising the children
-	waitpid(child2, &status, 0);  // while they finish their tasks
+		child_two(argv, envp, f2, pipefd);
+	close(f1);
+	close(f2);
+	close(pipefd[0]);
+	close(pipefd[1]);
+	waitpid(child1, NULL, 0);
+	waitpid(child2, NULL, 0);
+	system("leaks pipex");
 }
-
-void	find_path(**envp)
-{
-	
-}
-
 
 int	main(int argc, char *argv[], char **envp)
 {
-	int	f1;
-	int	f2;
+	int		pipefd[2];
 
-	if (argc > 4)
+	if (argc > 5 || argc < 5)
 	{
-		return (0);
+		perror("Need 4 arguments");
+		exit (1);
 	}
-	f1 = open(argv[1], O_RDONLY);
-	f2 = open(argv[4], O_CREAT | O_RDWR | O_TRUNC, 0644);
-	if (f1 < 0 || f2 < 0)
-	{
-		return (-1);
-	}
-	pipex(f1, f2, cmd1, cmd2);
+	pipe(pipefd);
+	pipex(argv, envp, pipefd);
 	return (0);
 }
