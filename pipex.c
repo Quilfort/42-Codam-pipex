@@ -6,7 +6,7 @@
 /*   By: qfrederi <qfrederi@student.42.fr>            +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/03/07 12:16:31 by qfrederi      #+#    #+#                 */
-/*   Updated: 2022/03/09 13:27:57 by qfrederi      ########   odam.nl         */
+/*   Updated: 2022/03/16 16:12:57 by qfrederi      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,21 +18,27 @@ void	child_one(char *argv[], char**envp, int f1, int *pipefd)
 	char	**cmd;
 	char	*path_cmd;
 	char	*my_path;
-	int		index_split;
 
-	index_split = 0;
 	cmd = ft_split(argv[2], ' ');
 	if (!cmd)
 		print_error();
-	path_cmd = cmd[0];
-	path = find_path(envp);
-	index_split = split_index(path);
-	my_path = right_path(path, path_cmd, index_split);
-	free_split(path, index_split);
 	close(pipefd[0]);
-	dup2(f1, STDIN_FILENO);
-	dup2(pipefd[1], STDOUT_FILENO);
-	execve(my_path, cmd, envp);
+	if (dup2(f1, STDIN_FILENO) == -1)
+		perror("Dup Failed");
+	if (dup2(pipefd[1], STDOUT_FILENO) == -1)
+		perror("Dup Failed");
+	path_cmd = ft_strdup(cmd[0]);
+	path = find_path(envp);
+	my_path = right_path(path, path_cmd);
+	if (!my_path)
+	{
+		free_split(path);
+		free_split(cmd);
+		free(path_cmd);
+		print_error();
+	}
+	else
+		execve(my_path, cmd, envp);
 }
 
 void	child_two(char *argv[], char**envp, int f2, int *pipefd)
@@ -41,21 +47,27 @@ void	child_two(char *argv[], char**envp, int f2, int *pipefd)
 	char	**cmd;
 	char	*path_cmd;
 	char	*my_path;
-	int		index_split;
 
-	index_split = 0;
 	cmd = ft_split(argv[3], ' ');
 	if (!cmd)
 		print_error();
-	path_cmd = cmd[0];
-	path = find_path(envp);
-	index_split = split_index(path);
-	my_path = right_path(path, path_cmd, index_split);
-	free_split(path, index_split);
 	close(pipefd[1]);
-	dup2(pipefd[0], STDIN_FILENO);
-	dup2(f2, STDOUT_FILENO);
-	execve(my_path, cmd, envp);
+	if (dup2(pipefd[0], STDIN_FILENO) == -1)
+		perror("Dup Failed");
+	if (dup2(f2, STDOUT_FILENO) == -1)
+		perror("Dup Failed");
+	path_cmd = ft_strdup(cmd[0]);
+	path = find_path(envp);
+	my_path = right_path(path, path_cmd);
+	if (!my_path)
+	{
+		free_split(path);
+		free_split(cmd);
+		free(path_cmd);
+		print_error();
+	}
+	else
+		execve(my_path, cmd, envp);
 }
 
 void	pipex(char *argv[], char**envp, int *pipefd)
@@ -67,6 +79,8 @@ void	pipex(char *argv[], char**envp, int *pipefd)
 
 	f1 = open(argv[1], O_RDONLY);
 	f2 = open(argv[4], O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	if (f1 < 0 || f2 < 0)
+		print_error();
 	child1 = fork();
 	if (child1 < 0)
 		perror("Fork 1 has Failed");
@@ -83,7 +97,6 @@ void	pipex(char *argv[], char**envp, int *pipefd)
 	close(pipefd[1]);
 	waitpid(child1, NULL, 0);
 	waitpid(child2, NULL, 0);
-	system("leaks pipex");
 }
 
 int	main(int argc, char *argv[], char **envp)
@@ -95,7 +108,8 @@ int	main(int argc, char *argv[], char **envp)
 		perror("Need 4 arguments");
 		exit (1);
 	}
-	pipe(pipefd);
+	if (pipe(pipefd) == -1)
+		print_error();
 	pipex(argv, envp, pipefd);
 	return (0);
 }

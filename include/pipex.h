@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                        ::::::::            */
-/*   pipex.h                                            :+:    :+:            */
-/*                                                     +:+                    */
-/*   By: qfrederi <qfrederi@student.42.fr>            +#+                     */
-/*                                                   +#+                      */
-/*   Created: 2022/03/07 12:24:53 by qfrederi      #+#    #+#                 */
-/*   Updated: 2022/03/09 11:34:11 by qfrederi      ########   odam.nl         */
+/*                                                        :::      ::::::::   */
+/*   pipex.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: qfrederi <qfrederi@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/03/07 12:24:53 by qfrederi          #+#    #+#             */
+/*   Updated: 2022/03/16 11:59:44 by qfrederi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,8 @@ void	pipex(char *argv[], char**envp, int *pipefd);
 
 //path
 char	**find_path(char **envp);
-char	*right_path(char **path, char *path_cmd, int index_split);
-void	free_split(char **input, size_t max_index);
+char	*right_path(char **path, char *path_cmd);
+void	free_split(char **input);
 int		split_index(char **split);
 
 //error

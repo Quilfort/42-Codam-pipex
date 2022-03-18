@@ -6,7 +6,7 @@
 /*   By: qfrederi <qfrederi@student.42.fr>            +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/03/07 14:29:45 by qfrederi      #+#    #+#                 */
-/*   Updated: 2022/03/09 12:24:04 by qfrederi      ########   odam.nl         */
+/*   Updated: 2022/03/16 16:23:58 by qfrederi      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,14 +26,16 @@ char	**find_path(char **envp)
 	return (path);
 }
 
-char	*right_path(char **path, char *path_cmd, int index_split)
+char	*right_path(char **path, char *path_cmd)
 {
 	char	*slash;
 	char	*pipex_path;
 	char	*my_path;
 	int		i;
+	int		index_split;
 
 	i = 0;
+	index_split = split_index(path);
 	while (i < index_split)
 	{
 		slash = ft_strjoin(path[i], "/");
@@ -43,22 +45,12 @@ char	*right_path(char **path, char *path_cmd, int index_split)
 		if (!pipex_path)
 			print_error();
 		if (access(pipex_path, F_OK) == 0)
-		{
-			my_path = pipex_path;
-		}
+			my_path = ft_strdup(pipex_path);
+		free(slash);
+		free(pipex_path);
 		i++;
 	}
-	free(slash);
-	free(pipex_path);
+	if (!my_path)
+		print_error();
 	return (my_path);
-}
-
-int	split_index(char **split)
-{
-	int	index;
-
-	index = 0;
-	while (split[index])
-		index++;
-	return (index);
 }
