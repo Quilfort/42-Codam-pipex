@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   pipex.h                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: qfrederi <qfrederi@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/03/07 12:24:53 by qfrederi          #+#    #+#             */
-/*   Updated: 2022/03/16 11:59:44 by qfrederi         ###   ########.fr       */
+/*                                                        ::::::::            */
+/*   pipex.h                                            :+:    :+:            */
+/*                                                     +:+                    */
+/*   By: qfrederi <qfrederi@student.42.fr>            +#+                     */
+/*                                                   +#+                      */
+/*   Created: 2022/03/07 12:24:53 by qfrederi      #+#    #+#                 */
+/*   Updated: 2022/03/21 13:52:21 by qfrederi      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,14 +21,24 @@
 # include <sys/wait.h>
 # include <errno.h>
 
+typedef struct s_vars {
+	int		f1;
+	int		f2;
+	int		pipefd[2];
+	char	**cmd;
+	char	**path;
+	char	*path_cmd;
+
+}				t_vars;
+
 // Main
-void	child_one(char *argv[], char**envp, int f1, int *pipefd);
-void	child_two(char *argv[], char**envp, int f2, int *pipefd);
-void	pipex(char *argv[], char**envp, int *pipefd);
+void	child_one(char *argv[], char**envp, t_vars *vars);
+void	child_two(char *argv[], char**envp, t_vars *vars);
+void	pipex(char *argv[], char**envp, t_vars *vars);
 
 //path
 char	**find_path(char **envp);
-char	*right_path(char **path, char *path_cmd);
+char	*right_path(t_vars *vars);
 void	free_split(char **input);
 int		split_index(char **split);
 

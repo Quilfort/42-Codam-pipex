@@ -3,9 +3,10 @@ CC = gcc -g
 FLAGS = -Wall -Werror -Wextra
 INCLUDE = -I ./include
 OBJ_FILES = $(SRC:%.c=%.o)
-SRC =	pipex.c \
-		pipex_path.c \
-		pipex_error.c \
+OBJ_FILES_BONUS = $(SRC_BONUS:%.c=%.o)
+SRC =	./mandatory/pipex.c \
+		./mandatory/pipex_path.c \
+		./mandatory/pipex_error.c \
 		./utils/ft_split.c \
 		./utils/ft_strjoin.c \
 		./utils/ft_strnstr.c \
@@ -13,14 +14,24 @@ SRC =	pipex.c \
 		./utils/ft_substr.c \
 		./utils/ft_strdup.c \
 		./utils/ft_putstr_fd.c
+SRC_BONUS = ./bonus/pipex_bonus.c
+
+ifdef ADD_BONUS
+COMP_ALL = $(OBJ_FILES) $(OBJ_FILES_BONUS)
+else
+COMP_ALL = $(OBJ_FILES)
+endif
 
 all : $(NAME)
 
-$(NAME): $(OBJ_FILES)
+$(NAME): $(COMP_ALL)
 	gcc $(OBJ_FILES) -o $(NAME) 
 
 %.o: %.c
 	$(CC) $(FLAGS) $(INCLUDE) -c $< -o $@
+
+bonus:
+	@$(MAKE) ADD_BONUS=1 all
 
 clean:
 	@echo "Cleaning up .o files"
