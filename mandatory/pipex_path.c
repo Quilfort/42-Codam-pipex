@@ -6,7 +6,7 @@
 /*   By: qfrederi <qfrederi@student.42.fr>            +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/03/07 14:29:45 by qfrederi      #+#    #+#                 */
-/*   Updated: 2022/03/21 13:45:10 by qfrederi      ########   odam.nl         */
+/*   Updated: 2022/03/21 18:54:34 by qfrederi      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,11 +32,11 @@ char	*right_path(t_vars *vars)
 	char	*pipex_path;
 	char	*my_path;
 	int		i;
-	int		index_split;
 
+	if (access(vars->path_cmd, X_OK) == 0)
+		return (my_path = ft_strdup(vars->path_cmd));
 	i = 0;
-	index_split = split_index(vars->path);
-	while (i < index_split)
+	while (vars->path[i] != '\0')
 	{
 		slash = ft_strjoin(vars->path[i], "/");
 		if (!slash)

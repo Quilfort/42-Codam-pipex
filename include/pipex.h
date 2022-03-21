@@ -6,7 +6,7 @@
 /*   By: qfrederi <qfrederi@student.42.fr>            +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/03/07 12:24:53 by qfrederi      #+#    #+#                 */
-/*   Updated: 2022/03/21 13:52:21 by qfrederi      ########   odam.nl         */
+/*   Updated: 2022/03/21 18:54:56 by qfrederi      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@ typedef struct s_vars {
 	char	**cmd;
 	char	**path;
 	char	*path_cmd;
+	int		argc;
+	int		argv_index;
 
 }				t_vars;
 
@@ -44,6 +46,8 @@ int		split_index(char **split);
 
 //error
 void	print_error(void);
+void	print_error_127(void);
+void	print_error_0(void);
 
 // Utils
 char	**ft_split(char const *s, char c);
