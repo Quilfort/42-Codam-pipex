@@ -6,7 +6,7 @@
 /*   By: qfrederi <qfrederi@student.42.fr>            +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/03/07 12:24:53 by qfrederi      #+#    #+#                 */
-/*   Updated: 2022/03/21 18:54:56 by qfrederi      ########   odam.nl         */
+/*   Updated: 2022/03/23 13:09:04 by qfrederi      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ typedef struct s_vars {
 	char	**cmd;
 	char	**path;
 	char	*path_cmd;
+	char	*my_path;
 	int		argc;
 	int		argv_index;
 
@@ -35,19 +36,18 @@ typedef struct s_vars {
 
 // Main
 void	child_one(char *argv[], char**envp, t_vars *vars);
-void	child_two(char *argv[], char**envp, t_vars *vars);
+void	child_middle(char *argv[], char**envp, t_vars *vars);
+void	child_last(char *argv[], char**envp, t_vars *vars);
 void	pipex(char *argv[], char**envp, t_vars *vars);
 
 //path
-char	**find_path(char **envp);
+char	**find_path(char **envp, t_vars *vars);
 char	*right_path(t_vars *vars);
 void	free_split(char **input);
 int		split_index(char **split);
 
 //error
-void	print_error(void);
-void	print_error_127(void);
-void	print_error_0(void);
+void	print_error(t_vars *vars);
 
 // Utils
 char	**ft_split(char const *s, char c);

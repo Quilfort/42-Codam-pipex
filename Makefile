@@ -4,7 +4,7 @@ FLAGS = -Wall -Werror -Wextra
 INCLUDE = -I ./include
 OBJ_FILES = $(SRC:%.c=%.o)
 OBJ_FILES_BONUS = $(SRC_BONUS:%.c=%.o)
-SRC =	./mandatory/pipex.c \
+SRC =	./bonus/pipex_bonus.c \
 		./mandatory/pipex_path.c \
 		./mandatory/pipex_error.c \
 		./utils/ft_split.c \
