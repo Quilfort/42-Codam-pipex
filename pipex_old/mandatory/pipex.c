@@ -6,16 +6,21 @@
 /*   By: qfrederi <qfrederi@student.42.fr>            +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/03/07 12:16:31 by qfrederi      #+#    #+#                 */
-/*   Updated: 2022/03/30 10:31:03 by qfrederi      ########   odam.nl         */
+/*   Updated: 2022/03/23 13:18:46 by qfrederi      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-static void	preform_cmd(char *argv[], char**envp, t_vars *vars)
+void	child_one(char *argv[], char**envp, t_vars *vars)
 {
-	vars->cmd = ft_split(argv[vars->argv_index + 1], ' ');
+	vars->cmd = ft_split(argv[2], ' ');
 	if (!vars->cmd)
+		print_error(vars);
+	close(vars->pipefd[0]);
+	if (dup2(vars->f1, STDIN_FILENO) == -1)
+		print_error(vars);
+	if (dup2(vars->pipefd[1], STDOUT_FILENO) == -1)
 		print_error(vars);
 	vars->path_cmd = ft_strdup(vars->cmd[0]);
 	right_path(vars);
@@ -27,60 +32,62 @@ static void	preform_cmd(char *argv[], char**envp, t_vars *vars)
 		print_error(vars);
 	}
 	else
-		if (execve(vars->my_path, vars->cmd, envp) < 0)
-			print_error(vars);
+		execve(vars->my_path, vars->cmd, envp);
 }
 
-static void	fork_proces(char *argv[], char**envp, t_vars *vars)
+void	child_last(char *argv[], char**envp, t_vars *vars)
 {
-	int		pipefd[2];
-	pid_t	pid;
-
-	if (pipe(pipefd) == -1)
+	vars->cmd = ft_split(argv[vars->argc - 2], ' ');
+	if (!vars->cmd)
 		print_error(vars);
-	pid = fork();
-	if (pid == 0)
-	{
-		close(pipefd[0]);
-		if (dup2(pipefd[1], STDOUT_FILENO) == -1)
-			print_error(vars);
-		preform_cmd(argv, envp, vars);
-	}
-	else
-	{
-		close(pipefd[1]);
-		if (dup2(pipefd[0], STDIN_FILENO) == -1)
-			print_error(vars);
-		waitpid(pid, NULL, 0);
-	}
-}
-
-static void	pipex(char *argv[], char**envp, t_vars *vars)
-{
-	vars->argv_index = 1;
-	if (dup2(vars->f1, STDIN_FILENO) == -1)
+	close(vars->pipefd[1]);
+	if (dup2(vars->pipefd[0], STDIN_FILENO) == -1)
 		print_error(vars);
 	if (dup2(vars->f2, STDOUT_FILENO) == -1)
 		print_error(vars);
-	while (vars->argv_index < vars->argc - 3)
+	vars->path_cmd = ft_strdup(vars->cmd[0]);
+	right_path(vars);
+	if (!vars->my_path)
 	{
-		fork_proces(argv, envp, vars);
-		vars->argv_index++;
+		free_split(vars->path);
+		free_split(vars->cmd);
+		free(vars->path_cmd);
+		print_error(vars);
 	}
-	preform_cmd(argv, envp, vars);
+	else
+		execve(vars->my_path, vars->cmd, envp);
+}
+
+void	pipex(char *argv[], char**envp, t_vars *vars)
+{
+	pid_t	child1;
+
+	if (pipe(vars->pipefd) == -1)
+		print_error(vars);
+	child1 = fork();
+	if (child1 < 0)
+		print_error(vars);
+	if (child1 == 0)
+		child_one(argv, envp, vars);
+	child_last(argv, envp, vars);
 	close(vars->f1);
 	close(vars->f2);
+	close(vars->pipefd[0]);
+	close(vars->pipefd[1]);
+	waitpid(child1, NULL, 0);
 }
 
 int	main(int argc, char *argv[], char **envp)
 {
 	t_vars	vars;
 
-	if (argc < 5)
+	if (argc > 5 || argc < 5)
+	{
 		exit (1);
+	}
 	vars.argc = argc;
 	vars.f1 = open(argv[1], O_RDONLY);
-	vars.f2 = open(argv[vars.argc - 1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	vars.f2 = open(argv[argc - 1], O_CREAT | O_WRONLY | O_TRUNC, 0644);
 	if (vars.f1 < 0)
 		exit (1);
 	if (vars.f2 < 0)

@@ -6,7 +6,7 @@
 /*   By: qfrederi <qfrederi@student.42.fr>            +#+                     */
 /*                                                   +#+                      */
 /*   Created: 2022/03/09 11:28:56 by qfrederi      #+#    #+#                 */
-/*   Updated: 2022/03/24 10:38:31 by qfrederi      ########   odam.nl         */
+/*   Updated: 2022/03/23 13:10:06 by qfrederi      ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void	print_error(t_vars *vars)
 		exit(127);
 	}
 	else
-		perror("Error: 404s and Heartbreak");
+		perror("Whoops, something went wrong");
 	exit(1);
 }
 
