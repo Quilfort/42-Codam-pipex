@@ -51,7 +51,6 @@ static void	fork_proces(char *argv[], char**envp, t_vars *vars)
 		close(pipefd[1]);
 		if (dup2(pipefd[0], STDIN_FILENO) == -1)
 			print_error(vars);
-		waitpid(pid, NULL, 0);
 	}
 }
 
